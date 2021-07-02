@@ -5,6 +5,7 @@ import { CssBaseline } from '@material-ui/core';
 import './App.css';
 import { queryClient } from './common/config';
 import Home, { TopBar } from './pages/home';
+import Detail from './pages/detail';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           </Switch>
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route path="/items/:id" component={Detail} />
           </Switch>
         </Router>
       </div>

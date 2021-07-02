@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink, useHistory } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -16,7 +17,8 @@ import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useItems } from "../../common/modules/items";
 import { ellipsify } from "../../common/utils";
-import { useCart } from "../../common/config";
+import { useCart } from "../../common/modules/cart";
+import { IItem } from "../../common/types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export function TopBar() {
   const classes = useStyles();
-  const cartItemLen = useCart(state => state.cart.length);
+  const cartItemLen = useCart(state => state.getLength());
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
@@ -93,6 +95,28 @@ const useHomeStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+
+function GridItem(props: { item: IItem }) {
+  const classes = useHomeStyles();
+  const { item: it } = props;
+  const history = useHistory();
+  const onInfoClick = () => history.push(`/items/${it.id}`, it);
+  return (
+    <GridListTile cols={1}>
+      <img src={it.photoURL} alt={it.title} />
+      <GridListTileBar
+        title={it.title}
+        subtitle={<span>${it.price}</span>}
+        actionIcon={
+          <IconButton onClick={onInfoClick} aria-label={`info about ${it.title}`} className={classes.icon}>
+            <InfoIcon />
+          </IconButton>
+        }
+      />
+    </GridListTile>
+  );
+}
+
 function Home() {
   const { isLoading, isFetching, data } = useItems();
   const classes = useHomeStyles();
@@ -104,18 +128,7 @@ function Home() {
     <div className={classes.root}>
       <GridList cellHeight={250} className={classes.gridList} cols={3}>
         {data?.map((it) => (
-          <GridListTile key={it.id} cols={1}>
-            <img src={it.photoURL} alt={it.title} />
-            <GridListTileBar
-              title={it.title}
-              subtitle={<span>{ellipsify(it.descr, 35)}</span>}
-              actionIcon={
-                <IconButton aria-label={`info about ${it.title}`} className={classes.icon}>
-                  <InfoIcon />
-                </IconButton>
-              }
-            />
-          </GridListTile>
+          <GridItem key={it.id} item={it} />
         ))}
       </GridList>
     </div>
