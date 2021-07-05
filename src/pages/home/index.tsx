@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useHistory } from 'react-router-dom';
+import { Link, NavLink, useHistory } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
+      margin: 'auto',
     },
     menuButton: {
       marginRight: theme.spacing(2),
@@ -31,12 +32,20 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       flexGrow: 1,
     },
+    link: {
+      color: 'inherit',
+      textDecoration: 'inherit',
+    },
   }),
 );
 
 export function TopBar() {
   const classes = useStyles();
   const cartItemLen = useCart(state => state.getLength());
+  const history = useHistory();
+  function handleMenu() {
+    history.push('/cart');
+  }
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
@@ -44,9 +53,11 @@ export function TopBar() {
           {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
           </IconButton> */}
-          <Typography variant="h6" className={classes.title}>
-            FiCredityPay
-          </Typography>
+            <Typography variant="h6" className={classes.title}>
+              <NavLink to="/" className={classes.link}>
+                FiCredityPay
+              </NavLink>
+            </Typography>
           {/* <Button color="inherit">Login</Button> */}
           <IconButton
             aria-label="account of current user"
@@ -55,14 +66,16 @@ export function TopBar() {
             // onClick={handleMenu}
             color="inherit"
           >
-            <AccountCircle />
+            <NavLink to="/profile" className={classes.link}>
+              <AccountCircle />
+            </NavLink>
           </IconButton>
           <Badge badgeContent={cartItemLen} color="secondary">
             <IconButton
               aria-label="shopping cart"
               aria-controls="menu-appbar"
               aria-haspopup="true"
-              // onClick={handleMenu}
+              onClick={handleMenu}
               color="inherit"
             >
               <ShoppingCart />
@@ -73,7 +86,6 @@ export function TopBar() {
     </div>
   )
 }
-
 
 const useHomeStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -106,7 +118,7 @@ function GridItem(props: { item: IItem }) {
       <img src={it.photoURL} alt={it.title} />
       <GridListTileBar
         title={it.title}
-        subtitle={<span>${it.price}</span>}
+        subtitle={<span>{it.price.toLocaleString(undefined, { style: "currency", currency: it.currency })}</span>}
         actionIcon={
           <IconButton onClick={onInfoClick} aria-label={`info about ${it.title}`} className={classes.icon}>
             <InfoIcon />
@@ -121,12 +133,12 @@ function Home() {
   const { isLoading, isFetching, data } = useItems();
   const classes = useHomeStyles();
   if (isLoading) {
-    return <CircularProgress />;
+    return <CircularProgress className={classes.root} />;
   }
 
   return (
     <div className={classes.root}>
-      <GridList cellHeight={250} className={classes.gridList} cols={3}>
+      <GridList cellHeight={300} className={classes.gridList} cols={3}>
         {data?.map((it) => (
           <GridItem key={it.id} item={it} />
         ))}

@@ -20,6 +20,7 @@ import AddShoppingCart from '@material-ui/icons/AddShoppingCart';
 import TextField from '@material-ui/core/TextField';
 import { IItem } from '../../common/types';
 import { useCart } from '../../common/modules/cart';
+import { useMessages } from '../../common/modules/messages';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,13 +46,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function DetailActions(props: { id: string }) {
+function DetailActions(props: { item: IItem }) {
+  const { item } = props;
   const [qty, setQty] = React.useState(1);
+  const { addMessage } = useMessages();
   const onChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (ev) =>setQty(Number(ev.target.value));
-  const { add: addToCart } = useCart();
+  const { add: addToCart, } = useCart();
   const onAddClickHandler = () => {
-    addToCart({ itemId: props.id, qty });
+    addToCart({ itemId: item.id, qty });
     setQty(1) // reset
+    const undoAction = () => addToCart({ itemId: item.id, qty: -qty });
+    addMessage({ descr: `${qty} ${item.title} added.`, undoAction });
   }
   return (
     <>
@@ -93,14 +98,14 @@ function Detail() {
         title={item.title}
       />
       <CardContent>
-        <Typography variant="h3">{item.price} <small>{item.currency}</small></Typography>
+        <Typography variant="h3">{item.price.toLocaleString(undefined, { style: "currency", currency: item.currency })} </Typography>
         <Typography variant="body2" color="textSecondary" component="p">
           {item.descr}
         </Typography>
       </CardContent>
       
       <CardActions disableSpacing>
-        <DetailActions id={item.id} />
+        <DetailActions item={item} />
         {/* 
         <IconButton aria-label="share">
           <ShareIcon />

@@ -25,7 +25,7 @@ interface IMessagesStore {
 }
 
 
-const useMessages = create<IMessagesStore>((set, get) => ({
+export const useMessages = create<IMessagesStore>((set, get) => ({
   messages: [],
   // getFirstAlert: () => get().messages.find(it => it.type === 'alert'),
   // getFirstToast: () => get().messages.find(it => it.type === 'toast'),
@@ -42,18 +42,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SnakbarMessages() {
+export function SnakbarMessages() {
   const maybeFirstSnakMsg = useMessages(state => state.messages[0]);
   const handleClose = useMessages(state => state.shift);
   const classes = useStyles();
 
   if (maybeFirstSnakMsg === undefined) return null;
 
+  function localUndoAction() {
+    maybeFirstSnakMsg.undoAction!();
+    handleClose();
+  }
+
   return (
     <Snackbar
       anchorOrigin={{
         vertical: 'bottom',
-        horizontal: 'left',
+        horizontal: 'center',
       }}
       open={true}
       autoHideDuration={maybeFirstSnakMsg.autoHideDuration ?? defaultAutoHideDuration}
@@ -62,7 +67,13 @@ function SnakbarMessages() {
       message={maybeFirstSnakMsg.descr}
       action={
         <React.Fragment>
-          <Maybe component={Button} color="secondary" size="small" onClick={handleClose}>
+          <Maybe
+            component={Button}
+            visible={!!maybeFirstSnakMsg.undoAction}
+            color="secondary"
+            size="small"
+            onClick={localUndoAction}
+          >
             UNDO
           </Maybe>
           <IconButton

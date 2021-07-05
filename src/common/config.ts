@@ -1,20 +1,15 @@
-import { QueryClient, useQuery } from 'react-query';
-import create from 'zustand';
-import { IItem, ICartItem } from './types';
-import { fetchItems } from './data';
+import { QueryClient } from 'react-query';
+import firebase from 'firebase';
 
 export const queryClient = new QueryClient();
 
-interface IBaseStore {
-  cart: ICartItem[],
-  push(it: ICartItem): void,
-  update(it: ICartItem): void,
-  remove(id: string): void,
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyClEp4YpwPlM5Ba1Mni9uUmvWw7V2HLCnY",
+  authDomain: "ficreditypaydemo.firebaseapp.com",
+  projectId: "ficreditypaydemo",
+  storageBucket: "ficreditypaydemo.appspot.com",
+  messagingSenderId: "566634557583",
+  appId: "1:566634557583:web:b61645af8e12e33b18c0fa"
+};
 
-export const useCart = create<IBaseStore>((set, get) => ({
-  cart: [],
-  push: (it: ICartItem) => set(state => ({ cart: state.cart.concat(it) })),
-  update: (newit: ICartItem) => set(state => ({ cart: state.cart.map(it => it.itemId === newit.itemId ? newit : it) })),
-  remove: (id: string) => set(state => ({ cart: state.cart.filter(it => it.itemId !== id) })),
-}));
+firebase.initializeApp(firebaseConfig);
