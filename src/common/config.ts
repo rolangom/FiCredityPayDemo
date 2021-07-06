@@ -1,6 +1,8 @@
 import { QueryClient } from 'react-query';
 import firebase from 'firebase';
+import 'firebase/analytics';
 
+export const currency = 'USD';
 export const queryClient = new QueryClient();
 
 const firebaseConfig = {
@@ -13,3 +15,4 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+firebase.analytics();

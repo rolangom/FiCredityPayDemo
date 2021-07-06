@@ -17,7 +17,9 @@ import Button from '@material-ui/core/Button';
 import { useCart } from '../../common/modules/cart';
 import { ICartItem, IItem } from '../../common/types';
 import { useItems } from '../../common/modules/items';
+import { currency } from '../../common/config';
 import Maybe from '../../common/components/Maybe';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-function CartItemQtySelect(props: { itemId: string, qty: number, onChange: (it: ICartItem) => void }) {
+function CartItemQtySelect(props: { itemId: IItem['id'], qty: number, onChange: (it: ICartItem) => void }) {
   const { itemId, qty, onChange } = props;
   const numList = Array(props.qty + 10).fill(undefined).map((_, i) => i);
   const onChangeHandler = (ev: React.ChangeEvent<{ name?: string | undefined; value: unknown }>, child: React.ReactNode) =>
@@ -49,14 +51,15 @@ function CartItemQtySelect(props: { itemId: string, qty: number, onChange: (it: 
   );
 }
 
-function CartItem(props: { id: string, qty: number, item: IItem, classes: ReturnType<typeof useStyles>, onChange: (it: ICartItem) => void, }) {
+function CartItem(props: { id: IItem['id'], qty: number, item: IItem, classes: ReturnType<typeof useStyles>, onChange: (it: ICartItem) => void, }) {
   const { qty, id, item, classes, onChange } = props;
-  const subtitle = ` x ${item.price.toLocaleString(undefined, { style: "currency", currency: item.currency })}`;
+  console.log('CartItem', item);
+  const subtitle = ` x ${item.price.toLocaleString(undefined, { style: "currency", currency })}`;
   const onDeleteHandler = () => onChange({ itemId: id, qty: 0 });
   return (
     <ListItem alignItems="flex-start">
       <ListItemAvatar>
-        <Avatar variant="square" alt={item.title} src={item.photoURL} />
+        <Avatar variant="square" alt={item.title} src={item.image} />
       </ListItemAvatar>
       <ListItemText
         primary={item.title}
@@ -74,7 +77,7 @@ function CartItem(props: { id: string, qty: number, item: IItem, classes: Return
         }
       />
       <ListItemSecondaryAction>
-        <Typography className={classes.inline}>{(qty * item.price).toLocaleString(undefined, { style: "currency", currency: item.currency })}</Typography>
+        <Typography className={classes.inline}>{(qty * item.price).toLocaleString(undefined, { style: "currency", currency })}</Typography>
         <IconButton onClick={onDeleteHandler} edge="end" aria-label="delete">
           <DeleteIcon />
         </IconButton>
@@ -83,9 +86,9 @@ function CartItem(props: { id: string, qty: number, item: IItem, classes: Return
   )
 }
 
-function TotalItem(props: { cart: Record<string, number>, items: Map<string, IItem>, classes: ReturnType<typeof useStyles> }) {
+function TotalItem(props: { cart: Record<IItem['id'], number>, items: Map<IItem['id'], IItem>, classes: ReturnType<typeof useStyles> }) {
   const { cart, items, classes } = props;
-  const total = Object.entries(cart).map(([id, qty]) => items.get(id)!.price * qty).reduce((acc, it) => acc + it, 0);
+  const total = Object.entries(cart).map(([key, qty]) => items.get(Number(key))!.price * qty).reduce((acc, it) => acc + it, 0);
   return (
     <>
       <ListItem alignItems="flex-start">
@@ -115,23 +118,26 @@ function Cart() {
   const { isLoading, isFetching, data } = useItems();
   const classes = useStyles();
   const { cart, set: updateCartItem } = useCart();
-  const items = React.useMemo(() => data && new Map<string, IItem>(data.map(it => [it.id, it])), [data]);
-  return (
+  const items = React.useMemo(() => data && new Map<number, IItem>(data.map(it => [it.id, it])), [data]);
+  if (isFetching || isLoading) {
+    return <CircularProgress className="top_bar_margin" />
+  }
+  return (  
     <div className="top_bar_margin">
       {/* <h1>Cart</h1> */}
       <List className={classes.root}>
-        {items && Object.entries(cart).map(([key, qty]) => (
+        {items && cart && Object.entries(cart).map(([key, qty]) => (
           <CartItem
             key={key}
-            id={key}
+            id={Number(key)}
             qty={qty}
-            item={items.get(key)!}
+            item={items.get(Number(key))!}
             classes={classes}
             onChange={updateCartItem}
           />
         ))}
         <Divider />
-        <Maybe component={React.Fragment} visible={!!items}>
+        <Maybe component={React.Fragment} visible={!!(items && cart)}>
           <TotalItem items={items!} cart={cart} classes={classes} />
         </Maybe>
       </List>

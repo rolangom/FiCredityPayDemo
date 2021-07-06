@@ -5,3 +5,11 @@
 .center {
   margin: auto;
 }
+
+.img {
+  display: block;
+  max-width: 230px;
+  max-height: 250px;
+  width: auto;
+  height: auto;
+}

@@ -5,19 +5,19 @@ import { ICartItem, IItem } from '../types';
 
 
 interface ICartStore {
-  cart: Record<string, number>,
+  cart: Record<IItem['id'], number>,
   getLength(): number,
   set(it: ICartItem): void,
   add(it: ICartItem): void,
-  remove(id: string): void,
+  remove(id: IItem['id']): void,
 }
 
-function inmmutableMapDelete(map: Record<string, number>, key: string): Record<string, number> {
+function inmmutableMapDelete(map: Record<IItem['id'], number>, key: IItem['id']): Record<IItem['id'], number> {
   const { [key]: _, ...rest } = map
   return rest;
 }
 
-function immutableMapSet(map: Record<string, number>, key: string, value: number): Record<string, number> {
+function immutableMapSet(map: Record<IItem['id'], number>, key: IItem['id'], value: number): Record<IItem['id'], number> {
   return {
     ...map,
     [key]: value,
@@ -42,7 +42,7 @@ export const useCart = create<ICartStore>(deleteItemWhen0Middleware(persist(
         it.itemId in state.cart ? state.cart[it.itemId] + it.qty : it.qty
       ) 
     })),
-    remove: (id: string) => set(state => ({ cart: inmmutableMapDelete(state.cart, id) })),
+    remove: (id: IItem['id']) => set(state => ({ cart: inmmutableMapDelete(state.cart, id) })),
   }),
   {
     name: 'cart',

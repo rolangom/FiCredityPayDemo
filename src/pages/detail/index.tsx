@@ -21,6 +21,8 @@ import TextField from '@material-ui/core/TextField';
 import { IItem } from '../../common/types';
 import { useCart } from '../../common/modules/cart';
 import { useMessages } from '../../common/modules/messages';
+import { currency } from '../../common/config';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,17 +92,17 @@ function Detail() {
     <Dialog open={true} onClose={history.goBack}>
       <CardHeader
         title={item.title}
-        // subheader="September 14, 2016"
+        subheader={item.category}
       />
       <CardMedia
         className={classes.media}
-        image={item.photoURL}
+        image={item.image}
         title={item.title}
       />
       <CardContent>
-        <Typography variant="h3">{item.price.toLocaleString(undefined, { style: "currency", currency: item.currency })} </Typography>
+        <Typography variant="h3">{item.price.toLocaleString(undefined, { style: "currency", currency })} </Typography>
         <Typography variant="body2" color="textSecondary" component="p">
-          {item.descr}
+          {item.description}
         </Typography>
       </CardContent>
       

@@ -19,6 +19,7 @@ import { useItems } from "../../common/modules/items";
 import { ellipsify } from "../../common/utils";
 import { useCart } from "../../common/modules/cart";
 import { IItem } from "../../common/types";
+import { currency } from "../../common/config";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -104,6 +105,11 @@ const useHomeStyles = makeStyles((theme: Theme) =>
     icon: {
       color: 'rgba(255, 255, 255, 0.54)',
     },
+    titleBar: {
+      background:
+        'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, ' +
+        'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    },
   }),
 );
 
@@ -115,10 +121,16 @@ function GridItem(props: { item: IItem }) {
   const onInfoClick = () => history.push(`/items/${it.id}`, it);
   return (
     <GridListTile cols={1}>
-      <img src={it.photoURL} alt={it.title} />
+      <img src={it.image} alt={it.title} className="img" />
       <GridListTileBar
         title={it.title}
-        subtitle={<span>{it.price.toLocaleString(undefined, { style: "currency", currency: it.currency })}</span>}
+        titlePosition="top"
+        actionPosition="left" 
+        className={classes.titleBar}
+      />
+      <GridListTileBar
+        title={it.price.toLocaleString(undefined, { style: "currency", currency })}
+        subtitle={it.category}
         actionIcon={
           <IconButton onClick={onInfoClick} aria-label={`info about ${it.title}`} className={classes.icon}>
             <InfoIcon />
@@ -130,7 +142,7 @@ function GridItem(props: { item: IItem }) {
 }
 
 function Home() {
-  const { isLoading, isFetching, data } = useItems();
+  const { isLoading, data } = useItems();
   const classes = useHomeStyles();
   if (isLoading) {
     return <CircularProgress className={classes.root} />;

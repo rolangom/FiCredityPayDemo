@@ -1,16 +1,17 @@
 
 export interface IItem {
-  id: string,
+  id: number,
   title: string,
-  descr: string,
+  description: string,
   price: number,
   currency: string,
-  photoURL: string,
+  image: string,
+  category: string,
   // qty: number,
 }
 
 export interface ICartItem {
-  itemId: string,
+  itemId: IItem['id'],
   qty: number,
 }
 
